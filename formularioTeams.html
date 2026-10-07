@@ -98,8 +98,37 @@ small{
     color:#666;
 }
 
+
+.popup{
+    position:fixed;
+    top:20px;
+    right:20px;
+    padding:15px 25px;
+    border-radius:8px;
+    color:white;
+    font-weight:bold;
+    display:none;
+    z-index:9999;
+    box-shadow:0 4px 12px rgba(0,0,0,0.2);
+}
+
+.popup-ok{
+    background:#28a745;
+}
+
+.popup-error{
+    background:#dc3545;
+}
+
 </style>
 </head>
+
+
+<div id="popup" class="popup">
+    <span id="popupMensaje"></span>
+</div>
+
+    
 
 <body>
 
@@ -191,6 +220,8 @@ Se permiten facturas, albaranes, justificantes, recibos, contratos y solicitudes
 
 </div>
 
+    
+
 <button type="submit">
 Enviar Solicitud
 </button>
@@ -207,6 +238,26 @@ const importe = document.getElementById("importe");
 const reglaCampos = document.getElementById("reglaCampos");
 const lblFactura = document.getElementById("lblFactura");
 const lblImporte = document.getElementById("lblImporte");
+
+
+function mostrarPopup(mensaje, tipo){
+
+    const popup = document.getElementById("popup");
+    const texto = document.getElementById("popupMensaje");
+
+    popup.className = "popup";
+    popup.classList.add(tipo);
+
+    texto.innerHTML = mensaje;
+
+    popup.style.display = "block";
+
+    setTimeout(() => {
+        popup.style.display = "none";
+    }, 4000);
+
+}
+    
 
 function actualizarRegla() {
 
@@ -311,13 +362,13 @@ document.getElementById("formPago").addEventListener("submit", async function(e)
     
         if(respuesta.ok){
     
-            alert("Solicitud enviada correctamente");
+            mostrarPopup("✅ Solicitud enviada correctamente", "popup-ok");
     
             document.getElementById("formPago").reset();
     
         }else{
     
-            alert("Error al guardar la solicitud");
+            mostrarPopup("❌ Error al guardar la solicitud", "popup-error");
     
         }
     
