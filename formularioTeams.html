@@ -139,7 +139,7 @@ Seleccione un tipo de solicitud.
 <div class="form-group">
 <label>Sociedad *</label>
 
-<select required>
+<select id="sociedad" required>
     <option value="">Seleccione una sociedad</option>
     <option>8000</option>
     <option>8050</option>
@@ -149,17 +149,17 @@ Seleccione un tipo de solicitud.
 
 <div class="form-group">
 <label>CIF proveedor *</label>
-<input type="text" required>
+<input type="text" id="cifProveedor" required>
 </div>
 
 <div class="form-group">
 <label>CIF sociedad *</label>
-<input type="text" required>
+<input type="text" id="cifSociedad" required>
 </div>
 
 <div class="form-group">
 <label>Nombre proveedor *</label>
-<input type="text" required>
+<input type="text" id="nombreProveedor" required>
 </div>
 
 <div class="form-group">
@@ -174,7 +174,7 @@ Seleccione un tipo de solicitud.
 
 <div class="form-group">
 <label>Motivo</label>
-<textarea placeholder="Indique el detalle de la solicitud"></textarea>
+<textarea id="motivo" placeholder="Indique el detalle de la solicitud"></textarea>
 </div>
 
 <div class="form-group">
@@ -248,7 +248,9 @@ function actualizarRegla() {
 
 tipoSolicitud.addEventListener("change", actualizarRegla);
 
-document.getElementById("formPago").addEventListener("submit", function(e){
+document.getElementById("formPago").addEventListener("submit", async function(e){
+
+    e.preventDefault();
 
     const tipo = tipoSolicitud.value;
     const factura = numeroFactura.value.trim();
@@ -280,6 +282,54 @@ document.getElementById("formPago").addEventListener("submit", function(e){
             return false;
         }
     }
+
+    const datos = {
+
+    tipoSolicitud: document.getElementById("tipoSolicitud").value,
+    sociedad: document.getElementById("sociedad").value,
+    cifProveedor: document.getElementById("cifProveedor").value,
+    cifSociedad: document.getElementById("cifSociedad").value,
+    nombreProveedor: document.getElementById("nombreProveedor").value,
+    numeroFactura: document.getElementById("numeroFactura").value,
+    importe: document.getElementById("importe").value,
+    motivo: document.getElementById("motivo").value
+
+    };
+    
+    try {
+    
+        const respuesta = await fetch(
+            "https://make.powerautomate.com/environments/Default-3b33942a-d377-4149-b157-e39d6dc320c3/flows/new?v3=true",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":"application/json"
+                },
+                body: JSON.stringify(datos)
+            }
+        );
+    
+        if(respuesta.ok){
+    
+            alert("Solicitud enviada correctamente");
+    
+            document.getElementById("formPago").reset();
+    
+        }else{
+    
+            alert("Error al guardar la solicitud");
+    
+        }
+    
+    }
+    catch(error){
+    
+        console.error(error);
+    
+        alert("Error al conectar con Power Automate");
+    
+    }
+
 });
 
 actualizarRegla();
