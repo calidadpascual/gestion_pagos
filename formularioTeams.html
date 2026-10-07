@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal de Solicitudes de Pago</title>
+
+<title>Solicitud de Gestión de Pagos</title>
 
 <style>
+
 body{
     font-family: Arial, sans-serif;
     background:#f5f5f5;
@@ -20,6 +22,7 @@ body{
     padding:30px;
     border-radius:10px;
     box-shadow:0 0 15px rgba(0,0,0,0.1);
+    border-top:8px solid #c00000;
 }
 
 h1{
@@ -39,7 +42,9 @@ label{
     color:#c00000;
 }
 
-input, select, textarea{
+input,
+select,
+textarea{
     width:100%;
     padding:10px;
     border:1px solid #ccc;
@@ -47,13 +52,32 @@ input, select, textarea{
     box-sizing:border-box;
 }
 
+input:focus,
+select:focus,
+textarea:focus{
+    border:2px solid #c00000;
+    outline:none;
+}
+
 textarea{
     min-height:120px;
     resize:vertical;
 }
 
-.required{
-    color:red;
+.info{
+    background:#fff4f4;
+    border-left:5px solid #c00000;
+    padding:10px;
+    margin-bottom:25px;
+}
+
+#reglaCampos{
+    background:#fff4f4;
+    color:#c00000;
+    padding:10px;
+    border-radius:5px;
+    margin-bottom:20px;
+    font-weight:bold;
 }
 
 button{
@@ -70,12 +94,10 @@ button:hover{
     background:#990000;
 }
 
-.info{
-    background:#fff4f4;
-    border-left:5px solid #c00000;
-    padding:10px;
-    margin-bottom:25px;
+small{
+    color:#666;
 }
+
 </style>
 </head>
 
@@ -86,34 +108,38 @@ button:hover{
 <h1>Solicitud de Gestión de Pagos</h1>
 
 <div class="info">
-Por favor complete todos los campos obligatorios marcados con (*).
+Por favor complete todos los campos obligatorios.
 </div>
 
-<form>
+<form id="formPago">
 
 <div class="form-group">
 <label>Tipo de solicitud *</label>
-<select required>
-<option value="">Seleccione...</option>
-<option>Pago de factura vencida</option>
-<option>Pago internacional</option>
-<option>Pago urgente de agricultores de soja, ganaderos o transportistas</option>
-<option>Pago de factura no vencida</option>
-<option>Solicitud detalle de pago</option>
-<option>Reclamación de confirming</option>
-<option>Solicitud de justificante de pago</option>
-<option>Otros</option>
+
+<select id="tipoSolicitud" required>
+    <option value="">Seleccione un tipo de solicitud</option>
+    <option value="Pago de factura vencida">Pago de factura vencida</option>
+    <option value="Pago internacional">Pago internacional</option>
+    <option value="Pago urgente">Pago urgente de agricultores de soja, ganaderos o transportistas</option>
+    <option value="Pago de factura no vencida">Pago de factura no vencida</option>
+    <option value="Solicitud detalle">Solicitud detalle de pago</option>
+    <option value="Reclamación de confirming">Reclamación de confirming</option>
+    <option value="Solicitud justificante">Solicitud de justificante de pago</option>
+    <option value="Otros">Otros</option>
 </select>
+
 </div>
+
 
 <div class="form-group">
 <label>Sociedad *</label>
+
 <select required>
-<option value="">Seleccione una sociedad...</option>
-<option>Sociedad 1</option>
-<option>Sociedad 2</option>
-<option>Sociedad 3</option>
+    <option value="">Seleccione una sociedad</option>
+    <option>8000</option>
+    <option>8050</option>
 </select>
+
 </div>
 
 <div class="form-group">
@@ -132,13 +158,13 @@ Por favor complete todos los campos obligatorios marcados con (*).
 </div>
 
 <div class="form-group">
-<label>Número factura</label>
-<input type="text">
+<label id="lblFactura">Número factura</label>
+<input type="text" id="numeroFactura">
 </div>
 
 <div class="form-group">
-<label>Importe (€)</label>
-<input type="number" step="0.01">
+<label id="lblImporte">Importe (€)</label>
+<input type="number" step="0.01" id="importe">
 </div>
 
 <div class="form-group">
@@ -148,12 +174,16 @@ Por favor complete todos los campos obligatorios marcados con (*).
 
 <div class="form-group">
 <label>Adjuntos</label>
-<input type="file" multiple
+
+<input
+type="file"
+multiple
 accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.doc,.docx">
+
 <small>
-Se permiten facturas, albaranes, justificantes, recibos,
-contratos y solicitudes.
+Se permiten facturas, albaranes, justificantes, recibos, contratos y solicitudes.
 </small>
+
 </div>
 
 <button type="submit">
@@ -163,6 +193,93 @@ Enviar Solicitud
 </form>
 
 </div>
+
+<script>
+
+const tipoSolicitud = document.getElementById("tipoSolicitud");
+const numeroFactura = document.getElementById("numeroFactura");
+const importe = document.getElementById("importe");
+const reglaCampos = document.getElementById("reglaCampos");
+const lblFactura = document.getElementById("lblFactura");
+const lblImporte = document.getElementById("lblImporte");
+
+function actualizarRegla() {
+
+    const tipo = tipoSolicitud.value;
+
+    numeroFactura.required = false;
+    importe.required = false;
+
+    if (tipo === "Reclamación de confirming") {
+
+        numeroFactura.required = true;
+        importe.required = true;
+
+        lblFactura.innerHTML = "Número factura *";
+        lblImporte.innerHTML = "Importe (€) *";
+
+        reglaCampos.innerHTML =
+        "⚠ Para Reclamación de confirming son obligatorios Número de factura e Importe.";
+
+    }
+    else if (tipo !== "") {
+
+        lblFactura.innerHTML = "Número factura *";
+        lblImporte.innerHTML = "Importe (€) *";
+
+        reglaCampos.innerHTML =
+        "⚠ Debe informar al menos Número de factura o Importe.";
+
+    }
+    else {
+
+        lblFactura.innerHTML = "Número factura";
+        lblImporte.innerHTML = "Importe (€)";
+
+        reglaCampos.innerHTML =
+        "Seleccione un tipo de solicitud.";
+    }
+}
+
+tipoSolicitud.addEventListener("change", actualizarRegla);
+
+document.getElementById("formPago").addEventListener("submit", function(e){
+
+    const tipo = tipoSolicitud.value;
+    const factura = numeroFactura.value.trim();
+    const valorImporte = importe.value.trim();
+
+    if (tipo === "Reclamación de confirming") {
+
+        if (factura === "" || valorImporte === "") {
+
+            e.preventDefault();
+
+            alert(
+            "Para una Reclamación de confirming debe informar Número de factura e Importe."
+            );
+
+            return false;
+        }
+
+    } else {
+
+        if (factura === "" && valorImporte === "") {
+
+            e.preventDefault();
+
+            alert(
+            "Debe informar al menos Número de factura o Importe."
+            );
+
+            return false;
+        }
+    }
+});
+
+actualizarRegla();
+
+</script>
 
 </body>
 </html>
